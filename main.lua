@@ -31,7 +31,7 @@ local tabButtons =
 		defaultFile = "assets/tabIcon.png",
 		overFile = "assets/tabIcon-down.png",
 		label = "TableView",
-		onPress = function() composer.gotoScene( "tab1" ); end,
+		onPress = function() composer.gotoScene( "myaudio" ); end,
 		selected = true
 	},
 	{
@@ -39,24 +39,8 @@ local tabButtons =
 		height = 32,
 		defaultFile = "assets/tabIcon.png",
 		overFile = "assets/tabIcon-down.png",
-		label = "ScrollView",
-		onPress = function() composer.gotoScene( "tab2" ); end,
-	},
-	{
-		width = 32, 
-		height = 32,
-		defaultFile = "assets/tabIcon.png",
-		overFile = "assets/tabIcon-down.png",
 		label = "PickerWheel",
-		onPress = function() composer.gotoScene( "tab3" ); end,
-	},
-	{
-		width = 32, 
-		height = 32,
-		defaultFile = "assets/tabIcon.png",
-		overFile = "assets/tabIcon-down.png",
-		label = "Other",
-		onPress = function() composer.gotoScene( "tab4" ); end,
+		onPress = function() composer.gotoScene( "mytimer" ); end,
 	}
 }
 
@@ -69,4 +53,4 @@ local tabBar = widget.newTabBar
 }
 
 -- Start at tab1
-composer.gotoScene( "tab1" )
+composer.gotoScene( "myaudio" )

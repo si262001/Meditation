@@ -25,13 +25,13 @@ audio.pause(params.channel);
 audio.setVolume(0,{channel=params.channel});
 end
 local slider;
-local volume = 0 ;
+
 -- 滑动滑块，对应音效声音大小变化，如果滑块滑到0，音效暂停
 local function sliderListener( event )
     if mymp3 ~= nil then
         if event.value > 0 then
-            volume = event.value / 100;
-            slider:play(volume);
+            slider.volume = event.value / 100;
+            slider:play(slider.volume);
         else
             slider:pause();
         end
@@ -55,16 +55,19 @@ slider = widget.newSlider
 slider.mp3Name = params.mp3Name;
 slider.mp3 = mymp3;
 slider.mp3channel = params.channel;
-slider.volume = volume;
 slider.mp3Key = params.mp3Key;
+slider.volume=0;
 local title = display.newText( params.mp3Name, slider.x, slider.y, native.systemFont, 14 )
 slider.title = title;
 title:setFillColor( 1, 0, 0 )
 
 function slider:play(num)
-    volume = num;
-    audio.setVolume(volume,{channel=params.channel});
-    slider:setValue(num * 100);
+    if num == nil and slider.volume == 0 then
+        slider.volume = 0.2;
+    end
+    
+    audio.setVolume(slider.volume,{channel=params.channel});
+    slider:setValue(slider.volume * 100);
     if audio.isChannelPlaying(params.channel) then
         return
     else
@@ -101,6 +104,11 @@ function slider:setPosition( x,y )
         slider.y = y;
         title.y = y;
     end
+end
+
+function slider:setVolume( num )
+    slider.volume = num;
+    audio.setVolume(slider.volume,{channel=params.channel});
 end
 
 
