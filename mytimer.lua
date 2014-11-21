@@ -89,7 +89,7 @@ function scene:create( event )
 			miao = shifen * 10 * 60;
 		end
 		if gefen > 0 then
-			miao = gefen * 60 + miao;
+			miao = gefen * 20 + miao;
 		end
 		if miao > 0 then
 			if timerId ~= nil then
@@ -100,7 +100,7 @@ function scene:create( event )
 				statusText.text = miao;
 				miao = miao - 1; 
 				if miao == 10 then
-					local event = { name = "timerending" };--还有10秒结束的时候，发出timerending事件。目前接收方是音频slider，它们会在10秒内淡出音频并停止
+					local event = { name = "timerending",time=10000 };--还有10秒结束的时候，发出timerending事件。目前接收方是音频slider，它们会在10秒内淡出音频并停止
 					Runtime:dispatchEvent(event);
 				end
 			end,miao + 1)

@@ -59,7 +59,7 @@ slider.mp3Key = params.mp3Key;
 slider.volume=0;
 local title = display.newText( params.mp3Name, slider.x, slider.y, native.systemFont, 14 )
 slider.title = title;
-title:setFillColor( 1, 0, 0 )
+title:setFillColor( 1, 1, 1 )
 
 function slider:play(num)
     if num == nil and slider.volume == 0 then

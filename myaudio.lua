@@ -1,5 +1,6 @@
 local deviceHeight = display.pixelHeight / 2;
 local deviceWidth  = display.pixelWidth  / 2;
+local RGB = 255;
 
 
 local widget = require( "widget" )
@@ -132,14 +133,12 @@ function initMp3( params )
 end
 
 local segmentName;
-local segmentedControl;
 
 function scene:create( event )
 	local sceneGroup = self.view;
 	local onStageSliders = {};
 	local tableView = nil
 	initMp3{sceneGroup = sceneGroup};
-
 
 	local function segmentedControlListener( event )
 		local target = event.target
@@ -164,19 +163,32 @@ function scene:create( event )
 
 		local event = { name="refreshRow" }--选了segment后，对应的音频改变，所以要刷新row
 		Runtime:dispatchEvent( event )
-
+		
 		
 		
 	end
 
-	segmentedControl = widget.newSegmentedControl
+
+	local segmentsheetInfo = require("segment_sheet")
+	local segmentImageSheet = graphics.newImageSheet( "segment_sheet.png", segmentsheetInfo:getSheet() )
+	local segmentedControl = widget.newSegmentedControl
 	{
-	    left = 10,
-	    top = 10,
+		
+		sheet = segmentImageSheet,
+		segmentFrameWidth = 20,
+		segmentFrameHeight = 30,
+		leftSegmentFrame = 2,
+		middleSegmentFrame = 2,
+		rightSegmentFrame = 2,
+		leftSegmentSelectedFrame = 3,
+		middleSegmentSelectedFrame = 3,
+		rightSegmentSelectedFrame = 3,
 	    segments = scenes,
 	    defaultSegment = 1,
 	    onPress = segmentedControlListener,
-	    segmentWidth = 300 / table.maxn(scenes)
+	    segmentWidth = 80 ,
+	    labelSize = 16,
+	    labelColor = { default={ 1, 1, 1 }, over={ 1, 1, 1, 1 } }
 	}
 	sceneGroup:insert( segmentedControl )
 
@@ -202,6 +214,9 @@ function scene:create( event )
 		width = 198,
 		height = 59,
 		label = "Back",
+		shape="roundedRect",
+		cornerRadius = 2,
+		fillColor = { default={ 0, 0, 0, 0 }, over={ 1, 0.1, 0.7, 0.4 } },
 		onRelease = goBack,
 	}
 	backButton.x = display.contentWidth + backButton.contentWidth
@@ -279,9 +294,9 @@ function scene:create( event )
 	
 	tableView = widget.newTableView
 	{
-		top = 132,
+		top = 50,
 		width = 320, 
-		height = 300,
+		height = 360,
 		listener = tableViewListener,
 		onRowRender = onRowRender,
 		onRowUpdate = onRowUpdate,
@@ -293,22 +308,12 @@ function scene:create( event )
 	
 	for i = 1, size do
 		local isCategory = false
-		local rowHeight = 40
+		local rowHeight = 73
 		local rowColor = 
 		{ 
-			default = { 1, 1, 1 },
-			over = { 30/255, 144/255, 1 },
+			default = { 92/RGB, 167/RGB, 186/RGB }
 		}
 		local lineColor = { 220/255, 220/255, 220/255 }
-		
-		if i == 25 or i == 50 or i == 75 then
-			isCategory = true
-			rowHeight = 24
-			rowColor = 
-			{ 
-				default = { 150/255, 160/255, 180/255, 200/255 },
-			}
-		end
 		
 		tableView:insertRow
 		{
@@ -320,20 +325,45 @@ function scene:create( event )
 		}
 	end
 
-	function fadeOutAudio( )
-		audio.fadeOut({channel=0,time=10000});--10秒淡出音频，因为定时器是结束前10秒发出的timerending事件
-		timer.performWithDelay(10000,function(  )--10秒后把slider的滑块状态置为0
+	function fadeOutAudio( event )
+		audio.fadeOut({channel=0,time=event.time});--10秒淡出音频，因为定时器是结束前10秒发出的timerending事件
+		timer.performWithDelay(event.time,function(  )--10秒后把slider的滑块状态置为0
 			for i=1,table.maxn(sliderMap:getKeys()) do
 				local oneSlider = sliderMap:get((sliderMap:getKeys())[i]);
 				oneSlider:pause()
 			end
 			local event = { name="refreshRow" }--因为音频已经停止，所以发出刷新row的事件,把row中显示的正在播放的音频清空
 			Runtime:dispatchEvent( event )
-			segmentedControl:setActiveSegment(1);--选择跳到quiet去
+			--segmentedControl:setActiveSegment(1);--选择跳到quiet去
 		end)
 	end
 
 	Runtime:addEventListener("timerending", fadeOutAudio);--监听定时器快到的事件
+
+	function storeUserAudio()
+		local sceneName = segmentName;
+		if sceneName == nil then
+			sceneName = segmentedControl.segmentLabel;
+		end
+		if sceneName == "quiet" then--安静的场景不保存
+			return
+		end
+		local sliderArr = {};
+		for i=1,table.maxn(sliderMap:getKeys()) do
+			local oneSlider = sliderMap:get((sliderMap:getKeys())[i]);
+			if oneSlider:isPlaying() then
+				table.insert(sliderArr,oneSlider);
+			end
+		end
+		scene2audio:put(sceneName,sliderArr);
+
+		fileIO:write{
+			filename="useraudio.txt",
+			object = scene2audio
+		}
+	end
+
+	Runtime:addEventListener("slidermoved",storeUserAudio);
 end
 
 function  scene:show( event )
@@ -341,30 +371,7 @@ function  scene:show( event )
 	
 end
 
-function storeUserAudio()
-	local sceneName = segmentName;
-	if sceneName == nil then
-		sceneName = segmentedControl.segmentLabel;
-	end
-	if sceneName == "quiet" then--安静的场景不保存
-		return
-	end
-	local sliderArr = {};
-	for i=1,table.maxn(sliderMap:getKeys()) do
-		local oneSlider = sliderMap:get((sliderMap:getKeys())[i]);
-		if oneSlider:isPlaying() then
-			table.insert(sliderArr,oneSlider);
-		end
-	end
-	scene2audio:put(sceneName,sliderArr);
 
-	fileIO:write{
-		filename="useraudio.txt",
-		object = scene2audio
-	}
-end
-
-Runtime:addEventListener("slidermoved",storeUserAudio);
 
 scene:addEventListener( "create" )
 scene:addEventListener( "show" )
