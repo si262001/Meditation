@@ -174,15 +174,15 @@ function scene:create( event )
 	local segmentedControl = widget.newSegmentedControl
 	{
 		
-		sheet = segmentImageSheet,
-		segmentFrameWidth = 20,
-		segmentFrameHeight = 30,
-		leftSegmentFrame = 2,
-		middleSegmentFrame = 2,
-		rightSegmentFrame = 2,
-		leftSegmentSelectedFrame = 3,
-		middleSegmentSelectedFrame = 3,
-		rightSegmentSelectedFrame = 3,
+		-- sheet = segmentImageSheet,
+		-- segmentFrameWidth = 20,
+		-- segmentFrameHeight = 30,
+		-- leftSegmentFrame = 2,
+		-- middleSegmentFrame = 2,
+		-- rightSegmentFrame = 2,
+		-- leftSegmentSelectedFrame = 3,
+		-- middleSegmentSelectedFrame = 3,
+		-- rightSegmentSelectedFrame = 3,
 	    segments = scenes,
 	    defaultSegment = 1,
 	    onPress = segmentedControlListener,
@@ -334,7 +334,7 @@ function scene:create( event )
 			end
 			local event = { name="refreshRow" }--因为音频已经停止，所以发出刷新row的事件,把row中显示的正在播放的音频清空
 			Runtime:dispatchEvent( event )
-			--segmentedControl:setActiveSegment(1);--选择跳到quiet去
+			segmentedControl:setActiveSegment(1);--选择跳到quiet去
 		end)
 	end
 

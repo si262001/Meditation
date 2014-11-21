@@ -89,7 +89,7 @@ function scene:create( event )
 			miao = shifen * 10 * 60;
 		end
 		if gefen > 0 then
-			miao = gefen * 20 + miao;
+			miao = gefen * 60 + miao;
 		end
 		if miao > 0 then
 			if timerId ~= nil then
